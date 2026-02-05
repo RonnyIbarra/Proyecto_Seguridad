@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoVault - Sistema Seguro de Criptografía</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0F3460;
+            --secondary: #16A085;
+            --accent: #34495E;
+            --danger: #E74C3C;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --bg-light: #ECF0F1;
+            --bg-dark: #2C3E50;
+            --text-primary: #2C3E50;
+            --text-secondary: #7F8C8D;
+            --border-color: #BDC3C7;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links button {
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links button:hover {
+            background: #C0392B;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .logout-btn.hidden {
+            display: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: none;
+            animation: slideDown 0.3s ease;
+            font-weight: 500;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #D5F4E6;
+            border: 1px solid var(--success);
+            color: #27AE60;
+        }
+
+        .alert-error {
+            background: #FADBD8;
+            border: 1px solid var(--danger);
+            color: #C0392B;
+        }
+
+        .alert-info {
+            background: #D6EAF8;
+            border: 1px solid #3498DB;
+            color: #2980B9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            border-bottom-color: var(--secondary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--secondary);
+        }
+
+        .tab-btn.hidden {
+            display: none;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        button {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0A1F3B;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 52, 96, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1E8449;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #C0392B;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .info-box {
+            background: #EBF5FB;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .info-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .data-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            border-color: var(--secondary);
+        }
+
+        .data-item h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .data-item .meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .data-item .actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .technique-badge {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .technique-badge.aes {
+            background: #16A085;
+        }
+
+        .technique-badge.rsa {
+            background: #8E44AD;
+        }
+
+        .technique-badge.sha {
+            background: #E74C3C;
+        }
+
+        .technique-badge.caesar {
+            background: #F39C12;
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #27AE60;
+            max-height: 250px;
+            word-break: break-all;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(22, 160, 133, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">CryptoVault</div>
+        <div class="nav-links">
+            <button id="logoutBtn" class="logout-btn hidden" onclick="logoutUser()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- ALERTAS -->
+        <div id="alert" class="alert"></div>
+
+        <!-- TABS NAVIGATION -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+            <button class="tab-btn" onclick="switchTab('register')">Registrarse</button>
+            <button class="tab-btn hidden" onclick="switchTab('encrypt')">Cifrar Datos</button>
+            <button class="tab-btn hidden" onclick="switchTab('decrypt')">Descifrar Datos</button>
+            <button class="tab-btn hidden" onclick="switchTab('data')">Mis Datos</button>
+            <button class="tab-btn hidden" onclick="switchTab('info')">Información</button>
+        </div>
+
+        <!-- TAB: LOGIN -->
+        <div id="login" class="tab-content active">
+            <div class="card">
+                <h2>Iniciar Sesión</h2>
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="Ingrese su usuario">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingrese su contraseña">
+                </div>
+                <button class="btn-primary" onclick="loginUser()">Iniciar Sesión</button>
+                <div class="info-box" style="margin-top: 1.5rem;">
+                    <strong>Cuenta de demostración:</strong>
+                    Usuario: demo | Contraseña: demo123
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: REGISTRO -->
+        <div id="register" class="tab-content">
+            <div class="card">
+                <h2>Crear Nueva Cuenta</h2>
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="regUsername" placeholder="Nombre de usuario único">
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="regEmail" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres">
+                </div>
+                <button class="btn-primary" onclick="registerUser()">Registrarse</button>
+            </div>
+        </div>
+
+        <!-- TAB: CIFRAR -->
+        <div id="encrypt" class="tab-content">
+            <div class="card">
+                <h2>Cifrar Datos</h2>
+                
+                <div class="form-group">
+                    <label>Título del Documento</label>
+                    <input type="text" id="encryptTitle" placeholder="Ejemplo: Datos Bancarios">
+                </div>
+
+                <div class="form-group">
+                    <label>Datos a Cifrar</label>
+                    <textarea id="encryptData" placeholder="Ingrese los datos sensibles que desea proteger..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Método de Cifrado</label>
+                    <select id="encryptMethod">
+                        <option value="AES">AES-256 (Cifrado Simétrico - Recomendado)</option>
+                        <option value="RSA">RSA-2048 (Cifrado Asimétrico)</option>
+                        <option value="CAESAR">César (Cifrado Clásico)</option>
+                    </select>
+                </div>
+
+                <div class="info-box">
+                    <strong>AES-256:</strong> Cifrado simétrico ultra seguro para datos grandes<br><br>
+                    <strong>RSA-2048:</strong> Cifrado asimétrico con claves pública/privada<br><br>
+                    <strong>César:</strong> Cifrado clásico de sustitución (propósito educativo)
+                </div>
+
+                <button class="btn-success" onclick="encryptData()">Cifrar Ahora</button>
+            </div>
+        </div>
+
+        <!-- TAB: DESCIFRAR -->
+        <div id="decrypt" class="tab-content">
+            <div class="card">
+                <h2>Descifrar Datos</h2>
+                
+                <div class="form-group">
+                    <label>Seleccione Datos a Descifrar</label>
+                    <select id="decryptDataId">
+                        <option value="">-- Seleccione datos --</option>
+                    </select>
+                </div>
+
+                <div id="decryptResult" style="display: none;">
+                    <h3>Resultado del Descifrado</h3>
+                    <div class="code-block" id="decryptedOutput"></div>
+                </div>
+
+                <button class="btn-primary" onclick="decryptData()">Descifrar</button>
+            </div>
+        </div>
+
+        <!-- TAB: MIS DATOS -->
+        <div id="data" class="tab-content">
+            <div class="card">
+                <h2>Mis Datos Cifrados</h2>
+                <div id="dataList" class="grid">
+                    <div class="info-box">Cargando datos...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: INFORMACIÓN -->
+        <div id="info" class="tab-content">
+            <div class="card">
+                <h2>Información del Sistema</h2>
+                <div id="infoContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        const API_URL = "http://localhost:8000/api";
+        let currentUser = null;
+        let userToken = null;
+
+        // ===== UTILIDADES =====
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+
+        function toggleAuthTabs(isLoggedIn) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            tabs.forEach((btn, index) => {
+                if (isLoggedIn) {
+                    // Cuando está logueado: ocultar Login y Registro, mostrar el resto
+                    if (index < 2) {
+                        btn.classList.add('hidden');
+                    } else {
+                        btn.classList.remove('hidden');
+                    }
+                } else {
+                    // Cuando NO está logueado: mostrar solo Login y Registro
+                    if (index < 2) {
+                        btn.classList.remove('hidden');
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Mostrar/ocultar botón de logout
+            if (isLoggedIn) {
+                logoutBtn.classList.remove('hidden');
+            } else {
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'data') loadUserData();
+            if (tabName === 'decrypt') loadDecryptOptions();
+            if (tabName === 'info') loadInfoContent();
+        }
+
+        // ===== AUTENTICACIÓN =====
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!username || !email || !password) {
+                showAlert('Complete todos los campos', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                if (res.ok) {
+                    showAlert('¡Cuenta creada! Ahora inicie sesión', 'success');
+                    document.querySelectorAll('input[id^="reg"]').forEach(i => i.value = '');
+                } else {
+                    showAlert('Error en registro', 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        async function loginUser() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('Ingrese usuario y contraseña', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data.user;
+                    userToken = data.token;
+                    
+                    showAlert(`Bienvenido, ${currentUser.username}`, 'success');
+                    document.querySelectorAll('input[id^="login"]').forEach(i => i.value = '');
+                    
+                    // Activar funciones y mostrar tabs
+                    toggleAuthTabs(true);
+                    setTimeout(() => switchTab('encrypt'), 500);
+                } else {
+                    showAlert('Credenciales inválidas', 'error');
+                }
+            } catch (e) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            userToken = null;
+            showAlert('Sesión cerrada', 'info');
+            toggleAuthTabs(false);
+            switchTab('login');
+        }
+
+        // ===== CIFRADO =====
+        async function encryptData() {
+            if (!currentUser) {
+                showAlert('Inicie sesión primero', 'error');
+                return;
+            }
+
+            const title = document.getElementById('encryptTitle').value;
+            const data = document.getElementById('encryptData').value;
+            const method = document.getElementById('encryptMethod').value;
+
+            if (!title || !data) {
+                showAlert('Complete todos los campos', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/data/encrypt`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, data, method })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    showAlert(`Datos cifrados correctamente con ${method}`, 'success');
+                    document.getElementById('encryptTitle').value = '';
+                    document.getElementById('encryptData').value = '';
+                } else {
+                    showAlert('Error en cifrado', 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function loadDecryptOptions() {
+            if (!currentUser) return;
+
+            try {
+                const res = await fetch(`${API_URL}/data/list`);
+                const data = await res.json();
+
+                const select = document.getElementById('decryptDataId');
+                select.innerHTML = '<option value="">-- Seleccione datos --</option>';
+
+                data.data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = `${item.title} (${item.method})`;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error cargando datos:', e);
+            }
+        }
+
+        async function decryptData() {
+            const dataId = document.getElementById('decryptDataId').value;
+
+            if (!dataId) {
+                showAlert('Seleccione datos a descifrar', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/data/decrypt`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data_id: parseInt(dataId) })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    document.getElementById('decryptedOutput').textContent = result.data;
+                    document.getElementById('decryptResult').style.display = 'block';
+                    showAlert(`Descifrado correctamente con ${result.method}`, 'success');
+                } else {
+                    showAlert('Error en descifrado', 'error');
+                }
+            } catch (e) {
+                showAlert('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                const res = await fetch(`${API_URL}/data/list`);
+                const data = await res.json();
+
+                const list = document.getElementById('dataList');
+                if (data.data.length === 0) {
+                    list.innerHTML = '<div class="info-box">No hay datos cifrados aún</div>';
+                    return;
+                }
+
+                list.innerHTML = data.data.map(item => `
+                    <div class="data-item">
+                        <h3>${item.title}</h3>
+                        <div class="meta">
+                            <span class="technique-badge ${item.method.toLowerCase()}">${item.method}</span>
+                            ${new Date(item.created_at).toLocaleDateString()}
+                        </div>
+                        <div class="actions">
+                            <button class="btn-primary btn-small" onclick="switchTab('decrypt')">Ver</button>
+                            <button class="btn-danger btn-small" onclick="deleteData(${item.id})">Eliminar</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Error cargando datos:', e);
+            }
+        }
+
+        async function deleteData(dataId) {
+            if (confirm('¿Está seguro?')) {
+                try {
+                    const res = await fetch(`${API_URL}/data/${dataId}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        showAlert('Datos eliminados', 'success');
+                        loadUserData();
+                    }
+                } catch (e) {
+                    showAlert('Error eliminando', 'error');
+                }
+            }
+        }
+
+        async function loadInfoContent() {
+            try {
+                const res = await fetch(`${API_URL}/info`);
+                const info = await res.json();
+
+                let html = `
+                    <div class="info-box">
+                        <strong>${info.app}</strong> v${info.version}
+                    </div>
+                    <h3>Técnicas Criptográficas Implementadas:</h3>
+                `;
+
+                Object.entries(info.techniques).forEach(([key, tech]) => {
+                    html += `
+                        <div class="info-box">
+                            <strong>${tech.name} (${key})</strong><br>
+                            Tipo: ${tech.type}<br>
+                            ${tech.bits ? `Bits: ${tech.bits}` : ''}<br>
+                            ${tech.description}
+                        </div>
+                    `;
+                });
+
+                document.getElementById('infoContent').innerHTML = html;
+            } catch (e) {
+                console.error('Error cargando info:', e);
+            }
+        }
+
+        // Load info on page load
+        window.onload = () => {
+            loadInfoContent();
+            toggleAuthTabs(false);
+            showAlert('Bienvenido a CryptoVault - Sistema Seguro de Criptografía', 'info');
+        };
+    </script>
+</body>
+</html>
